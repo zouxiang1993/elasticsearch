@@ -26,6 +26,7 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.nio.client.CloseableHttpAsyncClient;
 import org.apache.http.impl.nio.client.HttpAsyncClientBuilder;
 import org.apache.http.nio.conn.SchemeIOSessionStrategy;
+import org.apache.http.nio.reactor.IOReactorException;
 import org.apache.http.util.VersionInfo;
 
 import java.io.IOException;
@@ -313,7 +314,7 @@ public final class RestClientBuilder {
                 // default settings for connection pooling may be too constraining
                 .setMaxConnPerRoute(DEFAULT_MAX_CONN_PER_ROUTE)
                 .setMaxConnTotal(DEFAULT_MAX_CONN_TOTAL)
-                .setSSLContext(SSLContext.getDefault())
+                //.setSSLContext(SSLContext.getDefault())
                 .setUserAgent(USER_AGENT_HEADER_VALUE)
                 .setTargetAuthenticationStrategy(new PersistentCredentialsAuthenticationStrategy());
             if (httpClientConfigCallback != null) {
@@ -322,8 +323,11 @@ public final class RestClientBuilder {
 
             final HttpAsyncClientBuilder finalBuilder = httpClientBuilder;
             return AccessController.doPrivileged((PrivilegedAction<CloseableHttpAsyncClient>) finalBuilder::build);
-        } catch (NoSuchAlgorithmException e) {
-            throw new IllegalStateException("could not create the default ssl context", e);
+        //}
+        //catch (NoSuchAlgorithmException e) {
+          //  throw new IllegalStateException("could not create the default ssl context", e);
+        } catch (IOReactorException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -352,6 +356,6 @@ public final class RestClientBuilder {
          * or the {@link SchemeIOSessionStrategy} for communication through ssl without losing any other useful default
          * value that the {@link RestClientBuilder} internally sets, like connection pooling.
          */
-        HttpAsyncClientBuilder customizeHttpClient(HttpAsyncClientBuilder httpClientBuilder);
+        HttpAsyncClientBuilder customizeHttpClient(HttpAsyncClientBuilder httpClientBuilder) throws IOReactorException;
     }
 }

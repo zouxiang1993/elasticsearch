@@ -922,6 +922,7 @@ public class RestClient implements Closeable {
             return e;
         }
         if (exception instanceof SSLHandshakeException) {
+            exception.printStackTrace();
             SSLHandshakeException e = new SSLHandshakeException(exception.getMessage());
             e.initCause(exception);
             return e;
