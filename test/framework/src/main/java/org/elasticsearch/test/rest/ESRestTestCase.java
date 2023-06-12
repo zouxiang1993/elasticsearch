@@ -1460,25 +1460,8 @@ public abstract class ESRestTestCase extends ESTestCase {
                     SSLContext sslContext = SSLContexts.custom()
                         .loadTrustMaterial(null, (X509Certificate[] chain, String authType) ->  true)
                         .build();
-
-                    //SSLIOSessionStrategy sslioSessionStrategy = new SSLIOSessionStrategy(sslContext, NoopHostnameVerifier.INSTANCE);
-                    /*/Registry<SchemeIOSessionStrategy> registry = RegistryBuilder.<SchemeIOSessionStrategy>create()
-                        .register("http", NoopIOSessionStrategy.INSTANCE)
-                        .register("https", sslioSessionStrategy)
-                        .build();
-
-                    SSLConnectionSocketFactory sslSocketFactory = new SSLConnectionSocketFactory(sslContext,
-                        (s, sslSession) -> true);
-
-                    //SSLConnectionSocketFactory sslSocketFactory = new SSLConnectionSocketFactory(sslContext, NoopHostnameVerifier.INSTANCE);
-                    //Registry<ConnectionSocketFactory> socketFactoryRegistry = RegistryBuilder.<ConnectionSocketFactory> create().register("http", PlainConnectionSocketFactory.getSocketFactory()).register("https", sslSocketFactory).build();
-
-                    DefaultConnectingIOReactor ioReactor = new DefaultConnectingIOReactor();
-                    PoolingNHttpClientConnectionManager connectionManager = new PoolingNHttpClientConnectionManager(ioReactor, registry);
-                    *///httpClientBuilder.setConnectionManager(connectionManager);
                     httpClientBuilder.setSSLHostnameVerifier(NoopHostnameVerifier.INSTANCE);
                     httpClientBuilder.setSSLContext(sslContext);
-                    //httpClientBuilder.setSSLStrategy(sslioSessionStrategy);
                 } catch (NoSuchAlgorithmException e) {
                     throw new RuntimeException(e);
                 } catch (KeyManagementException e) {
