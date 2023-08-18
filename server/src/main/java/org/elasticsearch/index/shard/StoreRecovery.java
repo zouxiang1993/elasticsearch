@@ -372,7 +372,7 @@ final class StoreRecovery {
             try {
                 store.failIfCorrupted();
                 try {
-                    si = store.readLastCommittedSegmentsInfo();
+                    si = store.readLastCommittedSegmentsInfo(); // 读取最后一次commit的segment info
                 } catch (Exception e) {
                     String files = "_unknown_";
                     try {
@@ -388,7 +388,7 @@ final class StoreRecovery {
                 }
                 if (si != null) {
                     if (indexShouldExists) {
-                        version = si.getVersion();
+                        version = si.getVersion(); // 获取si中的版本号
                     } else {
                         // it exists on the directory, but shouldn't exist on the FS, its a leftover (possibly dangling)
                         // its a "new index create" API, we have to do something, so better to clean it than use same data
@@ -400,7 +400,7 @@ final class StoreRecovery {
             } catch (Exception e) {
                 throw new IndexShardRecoveryException(shardId, "failed to fetch index version after copying it over", e);
             }
-            recoveryState.getIndex().updateVersion(version);
+            recoveryState.getIndex().updateVersion(version); // 更新当前索引的版本号
             if (recoveryState.getRecoverySource().getType() == RecoverySource.Type.LOCAL_SHARDS) {
                 assert indexShouldExists;
                 store.bootstrapNewHistory();
@@ -437,7 +437,7 @@ final class StoreRecovery {
                 store.associateIndexWithNewTranslog(translogUUID);
                 writeEmptyRetentionLeasesFile(indexShard);
             }
-            indexShard.openEngineAndRecoverFromTranslog();
+            indexShard.openEngineAndRecoverFromTranslog(); // 从translog恢复数据
             indexShard.getEngine().fillSeqNoGaps(indexShard.getPendingPrimaryTerm());
             indexShard.finalizeRecovery();
             indexShard.postRecovery("post recovery from shard_store");

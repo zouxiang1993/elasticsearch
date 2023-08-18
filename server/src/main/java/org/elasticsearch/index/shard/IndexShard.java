@@ -2385,7 +2385,7 @@ public class IndexShard extends AbstractIndexShardComponent implements IndicesCl
         assert recoveryState.getRecoverySource().equals(shardRouting.recoverySource());
         switch (recoveryState.getRecoverySource().getType()) {
             case EMPTY_STORE:
-            case EXISTING_STORE:
+            case EXISTING_STORE: // 主分片恢复
                 markAsRecovering("from store", recoveryState); // mark the shard as recovering on the cluster state thread
                 threadPool.generic().execute(() -> {
                     try {
@@ -2398,7 +2398,7 @@ public class IndexShard extends AbstractIndexShardComponent implements IndicesCl
                     }
                 });
                 break;
-            case PEER:
+            case PEER:  // 副本分片恢复
                 try {
                     markAsRecovering("from " + recoveryState.getSourceNode(), recoveryState);
                     recoveryTargetService.startRecovery(this, recoveryState.getSourceNode(), recoveryListener);
