@@ -101,6 +101,7 @@ public class ReplicationOperation<
 
         totalShards.incrementAndGet();
         pendingActions.incrementAndGet(); // increase by 1 until we finish all primary coordination
+        // 执行primary上的操作
         primaryResult = primary.perform(request);
         primary.updateLocalCheckpointForShard(primaryRouting.allocationId().getId(), primary.localCheckpoint());
         final ReplicaRequest replicaRequest = primaryResult.replicaRequest();
@@ -123,6 +124,7 @@ public class ReplicationOperation<
             assert maxSeqNoOfUpdatesOrDeletes != SequenceNumbers.UNASSIGNED_SEQ_NO : "seqno_of_updates still uninitialized";
             final ReplicationGroup replicationGroup = primary.getReplicationGroup();
             markUnavailableShardsAsStale(replicaRequest, replicationGroup);
+            // 执行replica上的操作
             performOnReplicas(replicaRequest, globalCheckpoint, maxSeqNoOfUpdatesOrDeletes, replicationGroup);
         }
 
@@ -162,11 +164,13 @@ public class ReplicationOperation<
 
         totalShards.incrementAndGet();
         pendingActions.incrementAndGet();
+        // 对一个副本执行
         replicasProxy.performOn(shard, replicaRequest, globalCheckpoint, maxSeqNoOfUpdatesOrDeletes, new ActionListener<ReplicaResponse>() {
             @Override
             public void onResponse(ReplicaResponse response) {
                 successfulShards.incrementAndGet();
                 try {
+                    // 执行成功后，更新checkpoint
                     primary.updateLocalCheckpointForShard(shard.allocationId().getId(), response.localCheckpoint());
                     primary.updateGlobalCheckpointForShard(shard.allocationId().getId(), response.globalCheckpoint());
                 } catch (final AlreadyClosedException e) {
@@ -191,6 +195,7 @@ public class ReplicationOperation<
                         shard.shardId(), shard.currentNodeId(), replicaException, restStatus, false));
                 }
                 String message = String.format(Locale.ROOT, "failed to perform %s on replica %s", opType, shard);
+                // 执行失败后，调用failShardIfNeeded，向master上报
                 replicasProxy.failShardIfNeeded(shard, message, replicaException,
                     ActionListener.wrap(r -> decPendingAndFinishIfNeeded(), ReplicationOperation.this::onNoLongerPrimary));
             }

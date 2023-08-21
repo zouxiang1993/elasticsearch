@@ -810,9 +810,9 @@ public abstract class TransportReplicationAction<
                 assert request.waitForActiveShards() != ActiveShardCount.DEFAULT :
                     "request waitForActiveShards must be set in resolveRequest";
 
-                final ShardRouting primary = primary(state);
+                final ShardRouting primary = primary(state); // 从本地的路由表中拿到primary
                 if (retryIfUnavailable(state, primary)) {
-                    return;
+                    return; // 不可用会返回503状态码。具体信息看客户端
                 }
                 final DiscoveryNode node = state.nodes().get(primary.currentNodeId());
                 if (primary.currentNodeId().equals(state.nodes().getLocalNodeId())) {
@@ -852,6 +852,7 @@ public abstract class TransportReplicationAction<
                     request.shardId(), request, state.version(), primary.currentNodeId());
             }
             setPhase(task, "rerouted");
+            // 这里发出去的命令和客户端发给协调节点的命令类型一致。相当于一次转发，后面如果primary有变动，可能还会转发
             performAction(node, actionName, false, request);
         }
 
@@ -878,6 +879,7 @@ public abstract class TransportReplicationAction<
 
         private void performAction(final DiscoveryNode node, final String action, final boolean isPrimaryAction,
                                    final TransportRequest requestToPerform) {
+            // TODO: 看看这里transportOptions 超时等配置
             transportService.sendRequest(node, action, requestToPerform, transportOptions, new TransportResponseHandler<Response>() {
 
                 @Override
