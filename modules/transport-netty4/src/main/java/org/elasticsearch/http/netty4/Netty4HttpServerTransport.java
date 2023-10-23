@@ -627,7 +627,7 @@ public class Netty4HttpServerTransport extends AbstractLifecycleComponent implem
             if (transport.pipelining) {
                 ch.pipeline().addLast("pipelining", new HttpPipeliningHandler(logger, transport.pipeliningMaxEvents));
             }
-            ch.pipeline().addLast("handler", requestHandler);
+            ch.pipeline().addLast("handler", requestHandler); // 最终的请求处理器
         }
 
         @Override

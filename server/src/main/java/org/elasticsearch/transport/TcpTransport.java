@@ -123,7 +123,7 @@ public abstract class TcpTransport extends AbstractLifecycleComponent implements
 
     private final ConcurrentMap<String, BoundTransportAddress> profileBoundAddresses = newConcurrentMap();
     private final Map<String, List<TcpServerChannel>> serverChannels = newConcurrentMap();
-    private final Set<TcpChannel> acceptedChannels = ConcurrentCollections.newConcurrentSet();
+    private final Set<TcpChannel> acceptedChannels = ConcurrentCollections.newConcurrentSet(); // 通过 netty的Channel 和 es的Netty4TcpChannel 对象数量可以看连接数
 
     // this lock is here to make sure we close this transport and disconnect all the client nodes
     // connections while no connect operations is going on
@@ -305,7 +305,7 @@ public abstract class TcpTransport extends AbstractLifecycleComponent implements
 
         for (int i = 0; i < numConnections; ++i) {
             try {
-                TcpChannel channel = initiateChannel(node);
+                TcpChannel channel = initiateChannel(node); // 初始化单个channel，发起连接
                 logger.trace(() -> new ParameterizedMessage("Tcp transport client channel opened: {}", channel));
                 channels.add(channel);
             } catch (ConnectTransportException e) {
@@ -322,11 +322,11 @@ public abstract class TcpTransport extends AbstractLifecycleComponent implements
         ChannelsConnectedListener channelsConnectedListener = new ChannelsConnectedListener(node, connectionProfile, channels, listener);
 
         for (TcpChannel channel : channels) {
-            channel.addConnectListener(channelsConnectedListener);
+            channel.addConnectListener(channelsConnectedListener); // 连接完成后的回调, 里面会 executeHandshake
         }
 
         TimeValue connectTimeout = connectionProfile.getConnectTimeout();
-        threadPool.schedule(channelsConnectedListener::onTimeout, connectTimeout, ThreadPool.Names.GENERIC);
+        threadPool.schedule(channelsConnectedListener::onTimeout, connectTimeout, ThreadPool.Names.GENERIC); // 连接超时
         return channels;
     }
 
@@ -1270,9 +1270,11 @@ public abstract class TcpTransport extends AbstractLifecycleComponent implements
             if (countDown.countDown()) {
                 final TcpChannel handshakeChannel = channels.get(0);
                 try {
+                    // 建连之后，再执行ES的握手
                     executeHandshake(node, handshakeChannel, connectionProfile, new ActionListener<Version>() {
                         @Override
                         public void onResponse(Version version) {
+                            // ES握手成功后，完成NodeChannels的构造
                             NodeChannels nodeChannels = new NodeChannels(node, channels, connectionProfile, version);
                             long relativeMillisTime = threadPool.relativeTimeInMillis();
                             nodeChannels.channels.forEach(ch -> {

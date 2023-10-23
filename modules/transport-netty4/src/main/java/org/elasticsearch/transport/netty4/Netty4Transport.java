@@ -115,7 +115,7 @@ public class Netty4Transport extends TcpTransport {
         // See AdaptiveReceiveBufferSizePredictor#DEFAULT_XXX for default values in netty..., we can use higher ones for us, even fixed one
         this.receivePredictorMin = NETTY_RECEIVE_PREDICTOR_MIN.get(settings);
         this.receivePredictorMax = NETTY_RECEIVE_PREDICTOR_MAX.get(settings);
-        if (receivePredictorMax.getBytes() == receivePredictorMin.getBytes()) {
+        if (receivePredictorMax.getBytes() == receivePredictorMin.getBytes()) { // 这里应该是收到消息的时候，缓冲区分配多少内存？默认固定是64KB，后面看看Adaptive是否有可能优化？
             recvByteBufAllocator = new FixedRecvByteBufAllocator((int) receivePredictorMax.getBytes());
         } else {
             recvByteBufAllocator = new AdaptiveRecvByteBufAllocator((int) receivePredictorMin.getBytes(),
@@ -129,10 +129,10 @@ public class Netty4Transport extends TcpTransport {
         try {
             ThreadFactory threadFactory = daemonThreadFactory(settings, TRANSPORT_WORKER_THREAD_NAME_PREFIX);
             eventLoopGroup = new NioEventLoopGroup(workerCount, threadFactory);
-            clientBootstrap = createClientBootstrap(eventLoopGroup);
+            clientBootstrap = createClientBootstrap(eventLoopGroup); // 客户端 BootStrap
             if (NetworkService.NETWORK_SERVER.get(settings)) {
                 for (ProfileSettings profileSettings : profileSettings) {
-                    createServerBootstrap(profileSettings, eventLoopGroup);
+                    createServerBootstrap(profileSettings, eventLoopGroup); // 服务端 BootStrap。TODO: 什么场景下这里会有多个？
                     bindServer(profileSettings);
                 }
             }
@@ -184,7 +184,7 @@ public class Netty4Transport extends TcpTransport {
         serverBootstrap.group(eventLoopGroup);
         serverBootstrap.channel(NioServerSocketChannel.class);
 
-        serverBootstrap.childHandler(getServerChannelInitializer(name));
+        serverBootstrap.childHandler(getServerChannelInitializer(name)); // 收到新连接时的处理逻辑
         serverBootstrap.handler(new ServerChannelExceptionHandler());
 
         serverBootstrap.childOption(ChannelOption.TCP_NODELAY, profileSettings.tcpNoDelay);
@@ -296,7 +296,7 @@ public class Netty4Transport extends TcpTransport {
             serverAcceptedChannel(nettyTcpChannel);
             ch.pipeline().addLast("logging", new ESLoggingHandler());
             ch.pipeline().addLast("size", new Netty4SizeHeaderFrameDecoder());
-            ch.pipeline().addLast("dispatcher", new Netty4MessageChannelHandler(Netty4Transport.this));
+            ch.pipeline().addLast("dispatcher", new Netty4MessageChannelHandler(Netty4Transport.this)); // 请求分发
         }
 
         @Override

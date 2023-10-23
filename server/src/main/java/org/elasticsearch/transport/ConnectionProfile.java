@@ -73,11 +73,11 @@ public final class ConnectionProfile {
      * @return the connection profile
      */
     public static ConnectionProfile buildDefaultConnectionProfile(Settings settings) {
-        int connectionsPerNodeRecovery = TransportSettings.CONNECTIONS_PER_NODE_RECOVERY.get(settings);
-        int connectionsPerNodeBulk = TransportSettings.CONNECTIONS_PER_NODE_BULK.get(settings);
-        int connectionsPerNodeReg = TransportSettings.CONNECTIONS_PER_NODE_REG.get(settings);
-        int connectionsPerNodeState = TransportSettings.CONNECTIONS_PER_NODE_STATE.get(settings);
-        int connectionsPerNodePing = TransportSettings.CONNECTIONS_PER_NODE_PING.get(settings);
+        int connectionsPerNodeRecovery = TransportSettings.CONNECTIONS_PER_NODE_RECOVERY.get(settings); // 默认: 2
+        int connectionsPerNodeBulk = TransportSettings.CONNECTIONS_PER_NODE_BULK.get(settings); // 默认: 3
+        int connectionsPerNodeReg = TransportSettings.CONNECTIONS_PER_NODE_REG.get(settings); // 默认: 6
+        int connectionsPerNodeState = TransportSettings.CONNECTIONS_PER_NODE_STATE.get(settings); // 默认: 1
+        int connectionsPerNodePing = TransportSettings.CONNECTIONS_PER_NODE_PING.get(settings); // 默认: 1
         Builder builder = new Builder();
         builder.setConnectTimeout(TransportSettings.CONNECT_TIMEOUT.get(settings));
         builder.setHandshakeTimeout(TransportSettings.CONNECT_TIMEOUT.get(settings));

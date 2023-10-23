@@ -85,7 +85,7 @@ public class GatewayMetaState implements ClusterStateApplier {
         if (DiscoveryNode.isMasterNode(settings) || DiscoveryNode.isDataNode(settings)) {
             try {
                 ensureNoPre019State();
-                final MetaData metaData = metaStateService.loadFullState();
+                final MetaData metaData = metaStateService.loadFullState(); // 加载集群的元数据。/data/nodes/0/_state/global-??.st
                 final MetaData upgradedMetaData = upgradeMetaData(metaData, metaDataIndexUpgradeService, metaDataUpgrader);
                 // We finished global state validation and successfully checked all indices for backward compatibility
                 // and found no non-upgradable indices, which means the upgrade can continue.

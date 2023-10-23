@@ -80,6 +80,9 @@ import java.util.function.Predicate;
 import static org.elasticsearch.common.settings.Settings.readSettingsFromStream;
 import static org.elasticsearch.common.settings.Settings.writeSettingsToStream;
 
+/**
+ * 集群元数据。会持久化到 /data/nodes/0/_state/global-??.st 中  {@link org.elasticsearch.gateway.GatewayMetaState}
+ */
 public class MetaData implements Iterable<IndexMetaData>, Diffable<MetaData>, ToXContentFragment {
 
     private static final Logger logger = LogManager.getLogger(MetaData.class);

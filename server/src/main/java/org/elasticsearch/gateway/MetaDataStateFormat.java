@@ -61,6 +61,8 @@ import java.util.stream.Collectors;
  * MetaDataStateFormat is a base class to write checksummed
  * XContent based files to one or more directories in a standardized directory structure.
  * @param <T> the type of the XContent base data-structure
+ *
+ * /data/nodes/0/_state/node-??.st文件中，存储的内容是 {@link org.elasticsearch.env.NodeMetaData}
  */
 public abstract class MetaDataStateFormat<T> {
     public static final XContentType FORMAT = XContentType.SMILE;

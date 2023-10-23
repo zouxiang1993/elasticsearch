@@ -302,6 +302,7 @@ public final class NodeEnvironment  implements Closeable {
             this.locks = nodeLock.locks;
             this.nodePaths = nodeLock.nodePaths;
             this.nodeLockId = nodeLock.nodeId;
+            // 加载node自身的元数据。目前里面只有一个nodeId。节点重启后仍然能保持相同的node id。
             this.nodeMetaData = loadOrCreateNodeMetaData(settings, logger, nodePaths);
             nodeIdConsumer.accept(nodeMetaData.nodeId());
 
