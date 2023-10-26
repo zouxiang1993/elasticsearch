@@ -107,6 +107,7 @@ import static java.util.Collections.emptyMap;
 import static java.util.Collections.unmodifiableMap;
 
 /**
+ * 每个ES shard都有一个专用的Store，用于访问Lucene的Directory
  * A Store provides plain access to files written by an elasticsearch index shard. Each shard
  * has a dedicated store that is uses to access Lucene's Directory which represents the lowest level
  * of file abstraction in Lucene used to read and write Lucene indices.
@@ -138,7 +139,7 @@ public class Store extends AbstractIndexShardComponent implements Closeable, Ref
         Setting.timeSetting("index.store.stats_refresh_interval", TimeValue.timeValueSeconds(10), Property.IndexScope);
 
     private final AtomicBoolean isClosed = new AtomicBoolean(false);
-    private final StoreDirectory directory;
+    private final StoreDirectory directory;  // 扩展了Lucene的Directory
     private final ReentrantReadWriteLock metadataLock = new ReentrantReadWriteLock();
     private final ShardLock shardLock;
     private final OnClose onClose;

@@ -126,7 +126,7 @@ public class FsDirectoryService extends DirectoryService {
         }
         return directory;
     }
-
+// TODO: 找下资料。为什么引入Hybrid?什么场景下会有性能提升？
     static final class HybridDirectory extends NIOFSDirectory {
         private final FSDirectory randomAccessDirectory;
 

@@ -38,7 +38,7 @@ public class ParsedDocument {
 
     private final String routing;
 
-    private final List<Document> documents;
+    private final List<Document> documents;  // 这里用List是因为nested字段会拆分成单独的文档。_id相同，_type不同。使用特殊的_type来表示nested字段
 
     private BytesReference source;
     private XContentType xContentType;

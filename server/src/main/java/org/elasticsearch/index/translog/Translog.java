@@ -118,12 +118,12 @@ public class Translog extends AbstractIndexShardComponent implements IndexShardC
     public static final int DEFAULT_HEADER_SIZE_IN_BYTES = TranslogHeader.headerSizeInBytes(UUIDs.randomBase64UUID());
 
     // the list of translog readers is guaranteed to be in order of translog generation
-    private final List<TranslogReader> readers = new ArrayList<>();
+    private final List<TranslogReader> readers = new ArrayList<>();  // 多个可读的
     private BigArrays bigArrays;
     protected final ReleasableLock readLock;
     protected final ReleasableLock writeLock;
     private final Path location;
-    private TranslogWriter current;
+    private TranslogWriter current; // 只有一个可写的
 
     protected final TragicExceptionHolder tragedy = new TragicExceptionHolder();
     private final AtomicBoolean closed = new AtomicBoolean();
